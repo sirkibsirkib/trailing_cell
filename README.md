@@ -10,8 +10,8 @@ This is particularly useful when:
  
 It also has with it the nice properties of:
  * Granular control of reader-synchronization events
- * joining and leaving of writers whenever (using TcWriter::clone)
- * joining and leaving of readers whenever (using TcWriter::add_reader)
+ * joining and leaving of writers whenever (using `TcWriter::clone`)
+ * joining and leaving of readers whenever (using `TcWriter::add_reader`)
  * both blocking and non-blocking write options
  * a reader can be unwrapped to return their T state.
 
