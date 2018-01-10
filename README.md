@@ -28,10 +28,17 @@ all implement `TakesMessage<M>` for the same `M` as the writer(s)). It's not
 clear to me how this option might be useful, but it costs nothing to
 support, so why not.
 
-## Implementation
+## Using it yourself
+For the writers and readers to communicate, they rely on some concept of 'message'. As such, before one can do anything, one needs to implement `trait TakesMessage` for the objects that are going to represent 'state'. This involves implementing only one function, which defines how your state object is updated when faced with a particular message.
 
-TcWriter is implemented as a wrapper over a `bus::Bus`, with 'write'
-messages being broadcast to all readers, and readers explicitly accepting
+All that remains then is to create a first writer object. All readers connected to it descend from this writer, either directly or from other writers that descend from it. These readers can then be thrown around on threads as desired, each calling whichever functions necessary, all ultimately boiling down to:
+ * synchronize with writer(s)
+ * access the inner data
+
+## Underlying Implementation
+
+`TcWriter` and `TcReader` are implemented as wrappers over a `bus::Bus`. 'write'
+messages are broadcast to all readers, and readers explicitly call the ``
 messages and applying them to their local `T` state.
 
 
