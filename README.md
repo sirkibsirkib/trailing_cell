@@ -8,7 +8,7 @@ For instance, I intend to use this for a game to store a `bidir-map` between cli
 ## Usefulness
 
 A set of connected `TcWriter<M>`s have any number (initially 0) of reading
-`TcWriter<T,M>` objects for any types `T` (typically the same type T).
+`TcReader<T,M>` objects for any types `T` (typically the same type T).
 This is particularly useful when:
  * The wrapped `T` data has the set of writers W and readers R, where W != R.
  * The speed of reads is more vital than the speed of writes.
