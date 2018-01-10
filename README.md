@@ -47,10 +47,13 @@ All that remains then is to create a first writer object. All readers connected 
 use std::time::Duration;
 use std::thread;
 
+let ten_millis = Duration::from_millis(10);
+
 let w = TcWriter::new(10);
 let mut r = w.add_reader(vec![]);
-let ten_millis = Duration::from_millis(10);
+
 let mut handles = vec![];
+
 // this just goes to show how to spread TcReaders over threads
 for i in 0..5 {
 	let w_clone = w.clone();
@@ -60,9 +63,12 @@ for i in 0..5 {
 		thread::sleep(ten_millis);
 	}));
 }
+
 // r's state is still stale, regardless of what the writers are doing.
 assert_eq!(r.get_mut_stale().len(), 0);
+
 thread::sleep(ten_millis);
+
 // We can't statically make any guarantees here except that the number 
 // of Push messages that have arrives lies on the interval [0,5]
 assert!(r.get_mut_fresh().len() <= 5);
@@ -70,6 +76,7 @@ for h in handles {
 	h.join().is_ok();
 }
 r.update();
+
 // Now we can be sure all 5 messages have arrived, but we don't know the
 // order of vector elements.
 assert_eq!(r.get_mut_stale().len(), 5);
