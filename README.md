@@ -6,7 +6,8 @@ This is particularly useful when:
  * The data has the set of writers W and readers R, where W != R
  * The speed of reads is more vital than the speed of writes.
       eg: Writes are very rare
- * Its OK if read states are slightly stale 
+ * Its OK if read states are slightly stale
+ 
 It also has with it the nice properties of:
  * Granular control of reader-synchronization events
  * joining and leaving of writers whenever (using TcWriter::clone)
