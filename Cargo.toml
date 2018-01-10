@@ -1,0 +1,7 @@
+[package]
+name = "trailing_cell"
+version = "0.1.0"
+authors = ["sirkibsirkib <christopher.esterhuyse@gmail.com>"]
+
+[dependencies]
+bus = "1.4.0"
