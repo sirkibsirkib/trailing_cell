@@ -4,6 +4,9 @@ version = "0.1.0"
 authors = ["sirkibsirkib <christopher.esterhuyse@gmail.com>"]
 description = "Provides wrappers for sharing a data structure where read speed is important and strict consistency is not (data can be stale)."
 repository = "https://github.com/sirkibsirkib/trailing_cell"
+readme = "README.md"
+keywords = ["wrapper", "lock-free", "synchronization", "bus", "consistency", "eventual consistency", "stale", "fast reading"]
+license-file = "LICENSE.md"
 
 [dependencies]
 bus = "1.4.0"
