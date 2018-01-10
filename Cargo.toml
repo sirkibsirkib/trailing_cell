@@ -6,6 +6,7 @@ description = "Provides wrappers for sharing a data structure where read speed i
 repository = "https://github.com/sirkibsirkib/trailing_cell"
 readme = "README.md"
 keywords = ["lock-free", "synchronization", "broadcast", "eventual", "consistency"]
+license = "MIT"
 license-file = "LICENSE.md"
 
 [dependencies]
