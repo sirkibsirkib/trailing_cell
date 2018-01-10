@@ -8,18 +8,18 @@ For instance, I intend to use this for a game to store a `bidir-map` between cli
 ## Usefulness
 
 A set of connected `TcWriter<M>`s have any number (initially 0) of reading
-`TcWriter<T,M>` objects for any types `T` (typically the same type T)
+`TcWriter<T,M>` objects for any types `T` (typically the same type T).
 This is particularly useful when:
- * The data has the set of writers W and readers R, where W != R
+ * The wrapped `T` data has the set of writers W and readers R, where W != R
  * The speed of reads is more vital than the speed of writes.
-      eg: Writes are very rare
- * Its OK if read states are slightly stale
+      eg: writes are very rare.
+ * Its OK if read states are slightly stale.
  
 It also has with it the nice properties of:
- * Granular control of reader-synchronization events
- * joining and leaving of writers whenever (using `TcWriter::clone`)
- * joining and leaving of readers whenever (using `TcWriter::add_reader`)
- * both blocking and non-blocking write options
+ * Granular control of reader-synchronization events.
+ * joining and leaving of writers whenever (using `TcWriter::clone`).
+ * joining and leaving of readers whenever (using `TcWriter::add_reader`).
+ * both blocking and non-blocking write options.
  * a reader can be unwrapped to return their `T` state.
 
 The implementation allows readers to be initialized with not only different
