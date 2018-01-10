@@ -75,4 +75,4 @@ r.update();
 assert_eq!(r.get_mut_stale().len(), 5);
 ```
 
-See the tests for some more commented examples
+See `tests.rs` for more annotated examples.
