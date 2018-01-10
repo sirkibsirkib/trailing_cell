@@ -2,6 +2,8 @@
 name = "trailing_cell"
 version = "0.1.0"
 authors = ["sirkibsirkib <christopher.esterhuyse@gmail.com>"]
+description = "Provides wrappers for sharing a data structure where read speed is important and strict consistency is not (data can be stale)."
+repository = "https://github.com/sirkibsirkib/trailing_cell"
 
 [dependencies]
 bus = "1.4.0"
