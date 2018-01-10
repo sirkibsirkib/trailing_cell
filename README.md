@@ -37,7 +37,7 @@ messages and applying them to their local `T` state.
 
 ## Example
 
-```
+```rust
 use std::time::Duration;
 use std::thread;
 
@@ -67,7 +67,6 @@ r.update();
 // Now we can be sure all 5 messages have arrived, but we don't know the
 // order of vector elements.
 assert_eq!(r.get_mut_stale().len(), 5);
-
 ```
 
 See the tests for some more commented examples
