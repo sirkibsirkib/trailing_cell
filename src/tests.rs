@@ -59,7 +59,7 @@ fn w1_r1_multithreaded() {
     let mut r = w.add_reader(vec![]);
     let ten_millis = Duration::from_millis(10);
     let mut handles = vec![];
-    // this just goes to show how to spread TcReaders over threads
+	// this demonstrates how to distribute readers over threads.
     for i in 0..5 {
         let w_clone = w.clone();
         handles.push(thread::spawn(move || {
