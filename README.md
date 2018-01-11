@@ -41,10 +41,5 @@ All that remains then is to create a first writer object. All readers connected 
 `TcWriter` and `TcReader` are implemented as wrappers over a `bus::Bus`, where writers act as `M` producers, and readers act as `M` consumers. However, a message from any writer arrives at all readers. Readers consume buffered messages when they call their `TcReader::update` function, and serially apply these messages to their local state (as defined by the trait).
 
 
-## Example
-
-```rust
-
-```
-
+## Examples
 See `tests.rs` for more annotated examples.
