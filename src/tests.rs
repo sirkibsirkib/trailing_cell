@@ -12,10 +12,10 @@ enum Change {
 // Next, I implement `TakesMessage` such that the vector can interpret a new
 // change object, and mutate itself accordingly.
 impl TakesMessage<Change> for Vec<u32> {
-    fn take_message(&mut self, t: Change) {
+    fn take_message(&mut self, t: &Change) {
         match t {
-            Change::Push(x) => { self.push(x); },
-            Change::Pop     => { self.pop();   },
+            &Change::Push(x) => { self.push(x); },
+            &Change::Pop     => { self.pop();   },
         }
     }
 }
@@ -28,11 +28,9 @@ fn wrapping_unwrapping() {
     // the reader starts with local [1,2,3] 
     let mut r = w.add_reader(vec![1,2,3]);
     let cmp : Vec<u32> = vec![1,2,3];
-    // no messages are sent. So here stale==fresh. Here we can see some ways
-    // the inner vector can be accessed
-    assert_eq!(&cmp, r.get_mut_stale());
-    assert_eq!(&cmp, r.get_mut_fresh());
-    assert_eq!( cmp, r.into_inner_stale());
+    // no messages are sent. So this state is as fresh as can be without any
+    // synchronization calls.
+    assert_eq!(&cmp, r.get_mut());
 }
 
 #[test]
@@ -46,7 +44,7 @@ fn staleness() {
     w.apply_change(Change::Pop);
     w.apply_change(Change::Pop);
     let cmp : Vec<u32> = vec![1,2];
-    assert_eq!(cmp, r.into_inner_stale());
+    assert_eq!(cmp, r.into_inner());
     // r's state is still [1,2], very stale.
 }
 
@@ -69,18 +67,19 @@ fn w1_r1_multithreaded() {
         }));
     }
     // r's state is still stale, regardless of what the writers are doing.
-    assert_eq!(r.get_mut_stale().len(), 0);
+    assert_eq!(r.get_mut().len(), 0);
     thread::sleep(ten_millis);
     // We can't statically make any guarantees here except that the number 
     // of Push messages that have arrives lies on the interval [0,5]
-    assert!(r.get_mut_fresh().len() <= 5);
+    r.update();
+    assert!(r.get_mut().len() <= 5);
     for h in handles {
         h.join().is_ok();
     }
     r.update();
     // Now we can be sure all 5 messages have arrived, but we don't know the
     // order of vector elements.
-    assert_eq!(r.get_mut_stale().len(), 5);
+    assert_eq!(r.get_mut().len(), 5);
 }
 
 #[test]
@@ -107,8 +106,9 @@ fn limited_sync() {
     
     // The reader will try (and succeed) to read up to 5 messages.
     r.update_limited(5);
-    assert_eq!(r.get_mut_stale().len(), 5);
+    assert_eq!(r.get_mut().len(), 5);
 
     // The reader will synchronize and get the remaining messages
-    assert_eq!(r.get_mut_fresh().len(), 16);
+    r.update();
+    assert_eq!(r.get_mut().len(), 16);
 }

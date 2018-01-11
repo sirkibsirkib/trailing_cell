@@ -9,7 +9,7 @@ mod tests;
 
 /// Prerequisite trait for any struct to be the 'wrapped' value of a TcReader
 pub trait TakesMessage<M> {
-    fn take_message(&mut self, t: M);
+    fn take_message(&mut self, t: &M);
 }
 
 /// A set of connected `TcWriter<M>`s have any number (initially 0) of reading
@@ -114,48 +114,64 @@ where T: TakesMessage<M>,
       M: Sync + Clone {
     
     /// Receives all waiting messages and applies them to the local object.
-    pub fn update(&mut self) {
+    pub fn update(&mut self) -> usize {
+        let mut count = 0;
         while let Ok(msg) = self.consumer.try_recv() {
-            unsafe { (*self.data.as_ptr()).take_message(msg); }
+            self.apply_given(&msg);
+            count += 1
         }
+        count
+    }
+
+    // Receives any waiting messages up to a limit. collects and returns these
+    // messages in a vector.
+    pub fn update_return(&mut self) -> Vec<M> {
+        let mut v = vec![];
+        while let Ok(msg) = self.consumer.try_recv() {
+            self.apply_given(&msg);
+            v.push(msg);
+        }
+        v
     }
 
     /// Receives any waiting messages up to a limit.
-    /// Returns number of messages received and appllied
+    /// Returns number of messages received and applied.
     pub fn update_limited(&mut self, limit: usize) -> usize {
         let mut count = 0;
         for _ in 0..limit {
             if let Ok(msg) = self.consumer.try_recv() {
-                unsafe { (*self.data.as_ptr()).take_message(msg); }
+                self.apply_given(&msg);
                 count += 1;
             } else { break }
         }
         count
     }
-
-    /// Returns a mutable reference to the inner object, after applying updates.
-    /// Use this when freshness is more vital than speed.
-    pub fn get_mut_fresh(&mut self) -> &mut T {
-        self.update();
-        self.data.get_mut()
-    }
     
-    /// Returns a mutable reference to the inner object, without applying
-    /// any updates. Use this when speed is more vital than freshness.
-    pub fn get_mut_stale(&mut self) -> &mut T {
+    /// combination of `update_return` and `update_limited`
+    pub fn update_return_limited(&mut self, limit: usize) -> Vec<M> {
+        let mut v = vec![];
+        for _ in 0..limit {
+            if let Ok(msg) = self.consumer.try_recv() {
+                self.apply_given(&msg);
+                v.push(msg);
+            } else { break }
+        }
+        v
+    }
+
+    /// Returns a mutable reference to current version of the trailing `T`.
+    pub fn get_mut(&mut self) -> &mut T {
         self.data.get_mut()
     }
 
     /// Consumes the reader, returning the current version of the trailing `T`.
-    pub fn into_inner_stale(self) -> T {
+    pub fn into_inner(self) -> T {
         self.data.into_inner()
     }
 
-    /// Consumes the reader, returning the trailing `T`, but applying all
-    /// waiting messages first
-    pub fn into_inner_fresh(mut self) -> T {
-        self.update();
-        self.data.into_inner()
+    #[inline]
+    fn apply_given(&mut self, msg: &M) {
+        unsafe { (*self.data.as_ptr()).take_message(&msg); }
     }
 }
 

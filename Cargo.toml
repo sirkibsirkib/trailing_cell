@@ -1,12 +1,11 @@
 [package]
 name = "trailing_cell"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["sirkibsirkib <christopher.esterhuyse@gmail.com>"]
 description = "Provides wrappers for sharing a data structure where read speed is important and strict consistency is not (data can be stale)."
 repository = "https://github.com/sirkibsirkib/trailing_cell"
 readme = "README.md"
 keywords = ["lock-free", "synchronization", "broadcast", "eventual", "consistency"]
-license = "MIT"
 license-file = "LICENSE.md"
 
 [dependencies]
