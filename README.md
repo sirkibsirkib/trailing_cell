@@ -1,7 +1,7 @@
 # Trailing Cell
 
 ## Purpose
-This little project is inspired by works such as `magnetic` and `evmap`, which concentrate on lock-freedom. Here I introduce some wrapper representing a sort of `Cell` that implmenets 'trailing state' semantics. This structure is useful in the situation you have a performance-critical data structure for which reads must be fast, but writes can be slow (perhaps they are very rare). The key here is that the state is provided by the user, and under the user's control.
+This little project is inspired by works such as `magnetic` and `evmap`, which concentrate on lock-freedom. Here I introduce some wrapper representing a sort of `Cell` that implements 'trailing state' semantics. This structure is useful in the situation you have a performance-critical data structure for which reads must be fast, but writes can be slow (perhaps they are very rare). The key here is that the state is provided by the user, and under the user's control.
 
 For instance, I intend to use this for a game to store a `bidir-map` between client ID's of which there is a fixed amount) and player ID's (which are tied to players, like usernames).
 

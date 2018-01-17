@@ -1,4 +1,3 @@
-use std::cell::Cell;
 use std::sync::{Arc,Mutex};
 
 extern crate bus;
@@ -13,7 +12,8 @@ pub trait TakesMessage<M> {
 }
 
 /// A set of connected `TcWriter<M>`s have any number (initially 0) of reading
-/// TcWriter<T,M> objects for any types `T` (typically the same type T)
+/// TcWriter<T,M> objects for any types `T` (typically the same type T).
+/// The data within some reader `r` can be then accessed by dereferencing `*r`.
 ///
 /// This is particularly useful when:
 ///     - The data has the set of writers W and readers R, where W != R
@@ -28,6 +28,7 @@ pub trait TakesMessage<M> {
 ///     - both blocking and non-blocking write options
 ///     - a reader can be unwrapped to return their T state.
 /// 
+///
 /// The implementation allows readers to be initialized with not only different
 /// local states, but even initial states of different types, (so long as they
 /// all implement TakesMessage<M> for the same M as the writer(s)). It's not
@@ -42,7 +43,6 @@ pub trait TakesMessage<M> {
 pub struct TcWriter<M>
 where M: Sync + Clone {
     producer: Arc<Mutex<Bus<M>>>,
-    // phantom: PhantomData<T>,
 }
 
 impl<M> TcWriter<M>
@@ -75,7 +75,7 @@ where M: Sync + Clone {
     /// The reader will maintain its own state
     pub fn add_reader<T: TakesMessage<M>>(&self, init: T) -> TcReader<T, M> {
         TcReader {
-            data: Cell::new(init),
+            data: init,
             consumer: self.producer.lock().unwrap().add_rx()
         }
     }
@@ -105,7 +105,7 @@ where M: Sync + Clone {
 /// make unintentionally forgetting a crucial update less likely.
 pub struct TcReader<T,M>
 where T: TakesMessage<M> {
-    data: Cell<T>,
+    data: T,
     consumer: BusReader<M>,
 }
 
@@ -123,8 +123,8 @@ where T: TakesMessage<M>,
         count
     }
 
-    // Receives any waiting messages up to a limit. collects and returns these
-    // messages in a vector.
+    /// Receives any waiting messages up to a limit. collects and returns these
+    /// messages in a vector.
     pub fn update_return(&mut self) -> Vec<M> {
         let mut v = vec![];
         while let Ok(msg) = self.consumer.try_recv() {
@@ -159,19 +159,30 @@ where T: TakesMessage<M>,
         v
     }
 
-    /// Returns a mutable reference to current version of the trailing `T`.
-    pub fn get_mut(&mut self) -> &mut T {
-        self.data.get_mut()
-    }
-
     /// Consumes the reader, returning the current version of the trailing `T`.
     pub fn into_inner(self) -> T {
-        self.data.into_inner()
+        self.data
     }
 
     #[inline]
     fn apply_given(&mut self, msg: &M) {
-        unsafe { (*self.data.as_ptr()).take_message(&msg); }
+        self.data.take_message(&msg);
+    }
+}
+
+impl<T,M> std::ops::Deref for TcReader<T,M>
+where T: TakesMessage<M> {
+    type Target = T;
+
+    fn deref(&self) -> &T {
+        &self.data
+    }
+}
+
+impl<T,M> std::ops::DerefMut for TcReader<T,M>
+where T: TakesMessage<M> {
+    fn deref_mut(&mut self) -> &mut T {
+        &mut self.data
     }
 }
 
